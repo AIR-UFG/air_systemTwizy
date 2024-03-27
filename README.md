@@ -4,7 +4,7 @@ This repository contains the Central codebase for the AIR team's sd_twizy vehicl
 
 <div align="center">
 
-![Twizy in the gazebo city](./docs/twizy.gif)
+![Twizy in the gazebo city](./vehicle_simulation/air_docs/twizy.gif)
 
 </div>
 
