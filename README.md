@@ -44,5 +44,5 @@ Start the Docker container using the run.sh script. Replace <image_name> with th
 Once inside the container, you can launch the ROS2 simulation environment with the following command:
 
 ```bash
-ros2 launch air_sim air_sim.launch.py world_name:=default.world
+ros2 launch air_sim air_simulation.launch.py world_name:=default.world
 ```
