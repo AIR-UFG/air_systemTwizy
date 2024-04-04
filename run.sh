@@ -24,6 +24,7 @@ CONTAINER_FOLDER_PATH="/home/$USERNAME/host"
 
 # Run the Docker container with the selected image and configurations for GUI applications
 docker run -it --rm \
+    --name air_container \
     --privileged \
     --network=host \
     --env="DISPLAY=$DISPLAY" \
