@@ -24,6 +24,10 @@ namespace vehicle_control_gazebo {
 
     }
 
+    void VehiclePlugin::Reset() {
+        // Empty function body
+    }
+
     void VehiclePlugin::Load(gazebo::physics::ModelPtr model, sdf::ElementPtr sdf){
 
         // Get the joints from the model
@@ -35,7 +39,7 @@ namespace vehicle_control_gazebo {
         front_left_steer_joint = model->GetJoint("front_left_steer_joint");
         front_right_steer_joint = model->GetJoint("front_right_steer_joint");
 
-        // footprint_link = model->GetLink("footprint_link");
+        footprint_link = model->GetLink("footprint_link");
 
         // Connect to the update event
         update_connection_ = gazebo::event::Events::ConnectWorldUpdateBegin(
@@ -45,7 +49,7 @@ namespace vehicle_control_gazebo {
         // ROS initialization
         node_ = gazebo_ros::Node::Get(sdf);
 
-        node_->declare_parameter<std::string>("drive_command_topic", "/sd_control");
+        node_->declare_parameter<std::string>("drive_command_topic", "/sd_control/cmd_vel");
         node_->get_parameter("drive_command_topic", drive_command_topic);
 
 

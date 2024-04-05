@@ -21,9 +21,9 @@ double MAX_STEERING_angle   = 0.52;     // maximum steering angle of the vehicle
 
 namespace vehicle_control_gazebo {
     class VehiclePlugin : public gazebo::ModelPlugin { 
-        public: 
+        public:
             VehiclePlugin(); //Constructor 
-            virtual ~VehiclePlugin(); // Destructor
+            virtual ~VehiclePlugin() = default; // Destructor
         protected:
             virtual void Load(gazebo::physics::ModelPtr model, sdf::ElementPtr sdf);
             virtual void Reset();
@@ -43,7 +43,7 @@ namespace vehicle_control_gazebo {
             gazebo::physics::JointPtr front_left_steer_joint;
             gazebo::physics::JointPtr front_right_steer_joint;
 
-            // gazebo::physics::LinkPtr footprint_link; 
+            gazebo::physics::LinkPtr footprint_link; 
 
             gazebo_ros::Node::SharedPtr node_; // ROS node handle
 
