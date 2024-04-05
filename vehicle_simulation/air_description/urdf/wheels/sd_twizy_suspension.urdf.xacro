@@ -159,7 +159,7 @@ All rights reserved
   </link>
 
   <xacro:macro name="FL_wheel">
-    <joint name="front_left_steer_joint" type="fixed">
+    <joint name="front_left_steer_joint" type="revolute">
       <parent link="base_link"/>
       <child link="front_left_axle"/>
       <origin xyz="${wheelbase} ${-(track / 2)} 0" rpy="${degrees_90} 0 ${degrees_180}"/>
@@ -167,16 +167,17 @@ All rights reserved
       <limit lower="-0.785398" upper="0.785398" effort="500000" velocity="250"/>
     </joint>
 
-    <joint name="front_left_wheel_joint" type="fixed">
+    <joint name="front_left_wheel_joint" type="revolute">
       <parent link="front_left_axle"/>
       <child link="front_left_wheel"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <axis xyz="0 0 -1"/>
+      <limit lower="-1e9" upper="1e9" effort="1000" velocity="1000"/>
     </joint>
   </xacro:macro>
 
   <xacro:macro name="FR_wheel">
-    <joint name="front_right_steer_joint" type="fixed">
+    <joint name="front_right_steer_joint" type="revolute">
       <parent link="base_link"/>
       <child link="front_right_axle"/>
       <origin xyz="${wheelbase} ${(track / 2)} 0" rpy="${degrees_90} 0 ${degrees_180}"/>
@@ -184,29 +185,32 @@ All rights reserved
       <limit lower="-0.785398" upper="0.785398" effort="500000" velocity="250"/>
     </joint>
 
-    <joint name="front_right_wheel_joint" type="fixed">
+    <joint name="front_right_wheel_joint" type="revolute">
       <parent link="front_right_axle"/>
       <child link="front_right_wheel"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <axis xyz="0 0 -1"/>
+      <limit lower="-1e9" upper="1e9" effort="1000" velocity="1000"/>
     </joint>
   </xacro:macro>
 
   <xacro:macro name="RL_wheel">
-    <joint name="rear_left_wheel_joint" type="fixed">
+    <joint name="rear_left_wheel_joint" type="revolute">
       <parent link="base_link"/>
       <child link="rear_left_wheel"/>
       <origin xyz="0 ${-(track / 2)} 0" rpy="${degrees_90} 0 0"/>
       <axis xyz="0 0 -1"/>
+      <limit lower="-1e9" upper="1e9" effort="1000" velocity="1000"/>
     </joint>
   </xacro:macro>
 
   <xacro:macro name="RR_wheel">
-    <joint name="rear_right_wheel_joint" type="fixed">
+    <joint name="rear_right_wheel_joint" type="revolute">
       <parent link="base_link"/>
       <child link="rear_right_wheel"/>
       <origin xyz="0 ${(track / 2)} 0" rpy="${degrees_90} 0 0"/>
       <axis xyz="0 0 -1"/>
+      <limit lower="-1e9" upper="1e9" effort="1000" velocity="1000"/>
     </joint>
   </xacro:macro>
 </robot>
