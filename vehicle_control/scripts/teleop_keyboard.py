@@ -24,7 +24,7 @@ class CarSimTeleopKeyboardNode(Node):
         self.declare_parameter('max_steering_angle', 0.5)
         self.max_steering_angle = self.get_parameter('max_steering_angle').get_parameter_value().double_value
 
-        self.declare_parameter('drive_topic', '/sd_control')
+        self.declare_parameter('drive_topic', '/sd_control/cmd_vel')
         self.drive_topic = self.get_parameter('drive_topic').get_parameter_value().string_value
 
         self.current_velocity = 0.0
