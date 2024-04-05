@@ -29,6 +29,17 @@ All rights reserved
       </visual>
     </link>
 
+  <!-- Define the footprint_link -->
+  <link name="footprint_link">
+  </link>
+
+  <!-- Connect the footprint_link to the base_link (or whatever your main link is) -->
+  <joint name="base_to_footprint" type="fixed">
+    <parent link="base_link"/>
+    <child link="footprint_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
     <joint name="chassis_joint" type="fixed">
       <origin xyz="${wheelbase / 2} 0 0" rpy="0 0 0"/>
       <parent link="base_link"/>
