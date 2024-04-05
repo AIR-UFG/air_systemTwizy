@@ -21,6 +21,8 @@ RUN apt update && apt install -y \
     python3-rosdep \
     ros-humble-gazebo-ros \
     ros-humble-gazebo-dev \
+    ros-humble-gazebo-plugins \
+    ros-humble-gazebo-ros-pkgs \
     ros-humble-joint-state-publisher \
     ros-humble-velodyne* \
     ros-humble-ackermann* \
