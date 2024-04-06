@@ -46,3 +46,26 @@ Once inside the container, you can launch the ROS2 simulation environment with t
 ```bash
 ros2 launch air_sim air_simulation.launch.py world_name:=default.world extra_gazebo_args:="--verbose"
 ```
+#### Step 3: Control the vehicle
+
+Once the simulation has started, press play in the Gazebo window. Then You can control the vehicle using the keyboard. In another terminal, run the following command to control the vehicle:
+
+```bash
+./bash_container.sh
+ros2 run vehicle_control teleop_keyboard.py
+```
+Then, follow the instructions bellow to control the vehicle:
+
+<div align="center">
+
+```mermaid
+flowchart TB
+    Start(("Start")) --> |"↑ W"| IncreaseVelocity[("Increase Velocity")]
+    Start --> |"↓ X"| DecreaseVelocity[("Decrease Velocity")]
+    Start --> |"← A"| TurnLeft[("Turn Left")]
+    Start --> |"→ D"| TurnRight[("Turn Right")]
+    Start --> |" S"| Stop[("Stop Vehicle")]
+```
+
+</div>
+
