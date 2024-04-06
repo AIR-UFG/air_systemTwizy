@@ -10,7 +10,7 @@ All rights reserved
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <gazebo reference="chassis">
-    <material>Gazebo/Green</material>
+    <material>Gazebo/Blue</material>
   </gazebo>
 
 </robot>
