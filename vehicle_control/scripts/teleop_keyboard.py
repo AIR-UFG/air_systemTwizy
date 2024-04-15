@@ -12,10 +12,10 @@ class CarSimTeleopKeyboardNode(Node):
     def __init__(self):
         super().__init__("car_sim_teleop_keyboard_node")
 
-        self.declare_parameter('velocity_increase_rate', 0.1)
+        self.declare_parameter('velocity_increase_rate', 2.5)
         self.velocity_increase_rate = self.get_parameter('velocity_increase_rate').get_parameter_value().double_value
 
-        self.declare_parameter('steering_increase_rate', 0.1)
+        self.declare_parameter('steering_increase_rate', 0.25)
         self.steering_increase_rate = self.get_parameter('steering_increase_rate').get_parameter_value().double_value
 
         self.declare_parameter('max_velocity', 10.0)
@@ -49,7 +49,7 @@ class CarSimTeleopKeyboardNode(Node):
         self.last_key = self.get_key()
         print("[publish_drive_msg]", self.last_key)
 
-        if self.last_key == "s":
+        if self.last_key == "x":
             self.publish_stop_msg()
             self.print_information()
             return
@@ -57,7 +57,7 @@ class CarSimTeleopKeyboardNode(Node):
         if self.last_key == "w":
             self.current_velocity += self.velocity_increase_rate
 
-        if self.last_key == "x":
+        if self.last_key == "s":
             self.current_velocity -= self.velocity_increase_rate
 
         if self.last_key == "a":

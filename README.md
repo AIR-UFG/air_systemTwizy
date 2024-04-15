@@ -61,10 +61,10 @@ Then, follow the instructions bellow to control the vehicle:
 ```mermaid
 flowchart TB
     Start(("Start")) --> |"↑ W"| IncreaseVelocity[("Increase Velocity")]
-    Start --> |"↓ X"| DecreaseVelocity[("Decrease Velocity")]
+    Start --> |"↓ S"| DecreaseVelocity[("Decrease Velocity")]
     Start --> |"← A"| TurnLeft[("Turn Left")]
     Start --> |"→ D"| TurnRight[("Turn Right")]
-    Start --> |" S"| Stop[("Stop Vehicle")]
+    Start --> |" X"| Stop[("Stop Vehicle")]
 ```
 
 </div>
