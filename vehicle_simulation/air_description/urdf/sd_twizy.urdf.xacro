@@ -15,6 +15,8 @@ All rights reserved
   <xacro:include filename="$(find air_description)/urdf/bases/sd_twizy_body.urdf.xacro" />
   <xacro:include filename="$(find air_description)/urdf/wheels/sd_twizy_suspension.urdf.xacro" />
   <xacro:include filename="$(find air_description)/urdf/sensors/cameras.urdf.xacro"/>
+  <xacro:include filename="$(find air_description)/urdf/sensors/imu.urdf.xacro"/>
+  <xacro:include filename="$(find air_description)/urdf/sensors/gps.urdf.xacro"/>
 
   <xacro:arg name="pub_tf" default="true" />
 
