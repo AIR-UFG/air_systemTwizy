@@ -40,7 +40,8 @@ install(DIRECTORY worlds
 )
 
 install(FILES
-  config/sd_twizy_rviz.rviz
+  config/air.rviz
+  config/pcd.rviz
   DESTINATION share/${PROJECT_NAME}/config
 )
 

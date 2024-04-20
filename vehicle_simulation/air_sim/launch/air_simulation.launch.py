@@ -3,14 +3,22 @@ from launch_ros.substitutions import FindPackageShare
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import PathJoinSubstitution, LaunchConfiguration, Command
+from launch.substitutions import PathJoinSubstitution, LaunchConfiguration, Command, PythonExpression
+from launch.conditions import IfCondition
 import os
 import xacro
 from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
     
+    rviz_arg = DeclareLaunchArgument(
+        'rviz',
+        default_value='false',
+        description='Launch rviz'
+    )
+
     share_dir = get_package_share_directory('air_description')
+    rviz_dir = get_package_share_directory('air_sim')
 
     world_name = LaunchConfiguration('world_name', default='default.world')
     declare_world_name_arg = DeclareLaunchArgument(
@@ -25,7 +33,9 @@ def generate_launch_description():
         LaunchConfiguration('world_name')
     ])
     
+    rviz_file = os.path.join(rviz_dir, 'config', 'air.rviz')
     xacro_file = os.path.join(share_dir, 'urdf', 'sd_twizy.urdf.xacro')
+
     robot_description_config = xacro.process_file(xacro_file)
     robot_urdf = robot_description_config.toxml()
     
@@ -76,10 +86,20 @@ def generate_launch_description():
         output='screen',
     )
 
+
+    rviz2_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        arguments=['-d', rviz_file],
+        condition=IfCondition(PythonExpression(["'", LaunchConfiguration('rviz'), "'=='true'"]))
+    )
+
     return LaunchDescription([
+        rviz_arg,
         robot_state_publisher_node,
         joint_state_publisher_node,
         gazebo_server,
         gazebo_client,
         urdf_spawn_node,
+        rviz2_node
     ])
