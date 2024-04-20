@@ -40,6 +40,8 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd /home/$USERNAME
 
 RUN mkdir -p /home/$USERNAME/.gazebo/models && cp -r /home/$USERNAME/ros2_ws/src/air_systemTwizy/vehicle_simulation/air_sim/models/* /home/$USERNAME/.gazebo/models
 
+RUN /bin/bash -c "sudo cp /home/$USERNAME/ros2_ws/src/air_systemTwizy/vehicle_simulation/air_description/urdf/sensors/VLP-16.urdf.xacro /opt/ros/humble/share/velodyne_description/urdf/"
+
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /home/$USERNAME/.bashrc && \
     echo "source /home/$USERNAME/ros2_ws/install/setup.bash" >> /home/$USERNAME/.bashrc
 
