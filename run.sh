@@ -11,6 +11,7 @@ USERNAME=air
 
 # Allow local connections to the X server for GUI applications in Docker
 xhost +local:
+# xhost +
 
 # Setup for X11 forwarding to enable GUI
 XAUTH=/tmp/.docker.xauth
@@ -31,11 +32,14 @@ docker run -it --rm \
     --env="QT_X11_NO_MITSHM=1" \
     --env="ROS_LOCALHOST_ONLY=1" \
     --env="ROS_DOMAIN_ID=91" \
+    --env="NVIDIA_VISIBLE_DEVICES=all" \
+    --env="NVIDIA_DRIVER_CAPABILITIES=all" \
+    --runtime nvidia \
     --env="TERM=xterm-256color" \
     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
     --env="XAUTHORITY=$XAUTH" \
     --volume="$XAUTH:$XAUTH" \
-    --volume "$HOST_FOLDER_PATH:$CONTAINER_FOLDER_PATH" \
+    --volume "$HOST_FOLDER_PATH:$CONTAINER_FOLDER_PATH:rw" \
     $IMAGE_NAME
 
 # If NVIDIA GPU is available, uncomment the following lines to enable GPU acceleration:
@@ -47,3 +51,6 @@ docker run -it --rm \
 
     # --volume "/dev:/dev" \
     # --volume "$HOST_FOLDER_PATH:$CONTAINER_FOLDER_PATH" \
+
+#   --env="ROS_LOCALHOST_ONLY=1" \
+#   --env="ROS_DOMAIN_ID=91" \
