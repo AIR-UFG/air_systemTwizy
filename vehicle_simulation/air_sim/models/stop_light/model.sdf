@@ -10,6 +10,7 @@
     <link name="link">
 
       <collision name="collision">
+        <laser_retro>12</laser_retro>
         <geometry>
           <mesh>
             <uri>model://stop_light/meshes/stop_light.obj</uri>
@@ -19,6 +20,7 @@
       </collision>
 
       <visual name="frame">
+        <laser_retro>12</laser_retro>
         <geometry>
           <mesh>
             <uri>model://stop_light/meshes/stop_light.obj</uri>

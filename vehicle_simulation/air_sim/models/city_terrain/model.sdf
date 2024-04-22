@@ -6,6 +6,7 @@
       <pose>0 0 -5 0 0 0</pose>
 
       <collision name="collision">
+        <laser_retro>5</laser_retro>
         <geometry>
           <plane>
             <normal>0 0 1</normal>
@@ -32,6 +33,7 @@
       </collision>
 
       <visual name="visual">
+        <laser_retro>5</laser_retro>
         <geometry>
           <heightmap>
             <use_terrain_paging>false</use_terrain_paging>

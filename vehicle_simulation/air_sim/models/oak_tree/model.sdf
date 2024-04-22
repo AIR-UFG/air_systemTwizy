@@ -4,6 +4,7 @@
     <static>true</static>
     <link name="link">
       <collision name="collision">
+        <laser_retro>7</laser_retro>
         <geometry>
           <mesh>
             <uri>model://oak_tree/meshes/oak_tree.dae</uri>
@@ -11,6 +12,7 @@
         </geometry>
       </collision>
       <visual name="branch">
+        <laser_retro>7</laser_retro>
         <geometry>
           <mesh>
             <uri>model://oak_tree/meshes/oak_tree.dae</uri>
@@ -28,6 +30,7 @@
         </material>
       </visual>
       <visual name="bark">
+        <laser_retro>7</laser_retro>
         <geometry>
           <mesh>
             <uri>model://oak_tree/meshes/oak_tree.dae</uri>

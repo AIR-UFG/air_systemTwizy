@@ -4,6 +4,7 @@
     <static>true</static>
     <link name="link">
       <collision name="collision">
+        <laser_retro>40</laser_retro>
         <pose>0 0 4.046044867 0 0 0</pose>
         <geometry>
           <box>
@@ -12,6 +13,7 @@
         </geometry>
       </collision>
       <visual name="visual">
+        <laser_retro>40</laser_retro>
         <pose>0 -1.961551703 0 0 0 0</pose>
         <geometry>
           <mesh>

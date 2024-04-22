@@ -4,6 +4,7 @@
     <static>true</static>
     <link name="link">
       <collision name="collision">
+        <laser_retro>40</laser_retro>
         <geometry>
           <mesh>
             <uri>model://house_3/meshes/house_3.dae</uri>
@@ -12,6 +13,7 @@
         </geometry>
       </collision>
       <visual name="visual">
+        <laser_retro>40</laser_retro>
         <geometry>
           <mesh>
             <uri>model://house_3/meshes/house_3.dae</uri>

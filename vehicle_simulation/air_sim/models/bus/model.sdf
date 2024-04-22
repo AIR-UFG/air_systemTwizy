@@ -4,6 +4,7 @@
     <static>true</static>
     <link name="link">
       <collision name="collision">
+        <laser_retro>55</laser_retro>
         <geometry>
           <mesh>
             <scale>0.01 0.01 0.01</scale>
@@ -12,6 +13,7 @@
         </geometry>
       </collision>
       <visual name="visual">
+        <laser_retro>55</laser_retro>
         <geometry>
           <mesh>
             <scale>0.01 0.01 0.01</scale>

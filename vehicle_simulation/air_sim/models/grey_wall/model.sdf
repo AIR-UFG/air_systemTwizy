@@ -5,6 +5,7 @@
     <link name="link">
       <pose>0 0 1.4 0 0 0</pose>
       <collision name="collision">
+        <laser_retro>15</laser_retro>
         <geometry>
           <box>
             <size>7.5 0.2 2.8</size>
@@ -12,6 +13,7 @@
         </geometry>
       </collision>
       <visual name="visual">
+        <laser_retro>15</laser_retro>
         <cast_shadows>false</cast_shadows>
         <geometry>
           <box>
