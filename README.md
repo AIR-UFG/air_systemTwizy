@@ -82,22 +82,26 @@ flowchart TB
     Start --> |"→ D"| TurnRight[("Turn Right")]
     Start --> |" X"| Stop[("Stop Vehicle")]
 ```
-
+</div>
 #### Record a Ros2 bag
 
 Once all the processes above are already up and running, open another terminal outside the container and navigate to the `air_systemTwizy` directory. Execute the following commands:
 
 ```bash
 ./bash_container.sh
+```
+Go to the `host` directory and execute the ros2 command to record the bag:
+
+```bash
 cd ~/host
 ros2 bag record -o <bag_name> /velodyne_points
 ```
 Control the vehicle through the city as you wish and then terminate the process with Ctrl+C. The bag will be stored in the `host` directory, which can be accessed both from within and outside the container.
 
-You can access the bag content running
+You can access the bag content inside the container running:
 
-```
-ros2 bag play <path_to_bag>
+```bash
+ros2 bag play <bag_path>
 ```
 
 And you can visualize the bag content with rviz by running:
@@ -112,13 +116,11 @@ NOTE: The command above will only record the `/velodyne_points` ros2 topic. If y
 ros2 bag record -o <bag_name> -a
 ```
 
-After recording, you can replay the bag file using the same process described earlier.
+After recording, you can replay the bag file using the same process described earlier. 
 
 To visualize the data from the bag file, follow the same process described above to play it, and then use rviz2 with a specific configuration file. Execute the following command:
 
 ```
 rviz2 -d ~/ros2_ws/src/air_systemTwizy/vehicle_simulation/air_sim/config/air.rviz
 ```
-
-</div>
 
