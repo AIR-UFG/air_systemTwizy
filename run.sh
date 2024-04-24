@@ -1,56 +1,65 @@
 #!/bin/bash
 
-# Check if an image name was provided
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <image-name>"
-    exit 1
-fi
-
-IMAGE_NAME="$1"
-USERNAME=air
+export USERNAME=air_sim
 
 # Allow local connections to the X server for GUI applications in Docker
 xhost +local:
-# xhost +
 
-# Setup for X11 forwarding to enable GUI
+# Load .env variables
+set -a  # automatically export all variables
+source .env
+set +a
+
+# Update DISPLAY and XAUTHORITY to ensure GUI works, needed for X11 forwarding
+
 XAUTH=/tmp/.docker.xauth
 touch $XAUTH
 xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
 
-# Create a volume to share files between the host and the container
+export DISPLAY=:0
+export XAUTHORITY=$XAUTH
 
-HOST_FOLDER_PATH="$(pwd)/../host" # Be sure to change this to the desired path
-CONTAINER_FOLDER_PATH="/home/$USERNAME/host"
+# Define HOST_DIR environment variable
+export HOST_DIR=$(pwd)/../host
+mkdir -p "$HOST_DIR"
 
-# Run the Docker container with the selected image and configurations for GUI applications
-docker run -it --rm \
-    --name air_container \
-    --privileged \
-    --network=host \
-    --env="DISPLAY=$DISPLAY" \
-    --env="QT_X11_NO_MITSHM=1" \
-    --env="ROS_LOCALHOST_ONLY=1" \
-    --env="ROS_DOMAIN_ID=91" \
-    --env="NVIDIA_VISIBLE_DEVICES=all" \
-    --env="NVIDIA_DRIVER_CAPABILITIES=all" \
-    --runtime nvidia \
-    --env="TERM=xterm-256color" \
-    --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
-    --env="XAUTHORITY=$XAUTH" \
-    --volume="$XAUTH:$XAUTH" \
-    --volume "$HOST_FOLDER_PATH:$CONTAINER_FOLDER_PATH:rw" \
-    $IMAGE_NAME
+# Check if any argument is provided
+if [ "$#" -gt 0 ]; then
+    # Parse arguments in the form of KEY=value
+    for arg in "$@"
+    do
+        key=$(echo $arg | cut -f1 -d=)
+        value=$(echo $arg | cut -f2 -d=)
+        
+        # Validate the key and update the environment variable
+        case "$key" in
+            GPU|WORLD_NAME|RVIZ|FOV_UP|FOV_DOWN|WIDTH|HEIGHT)
+                echo "Setting $key to $value"
+                export "$key"="$value"
+                ;;
+            *)
+                echo "Warning: Unknown setting '$key'. Ignored."
+                ;;
+        esac
+    done
+fi
 
-# If NVIDIA GPU is available, uncomment the following lines to enable GPU acceleration:
-    # --runtime nvidia \
-    # --env="NVIDIA_VISIBLE_DEVICES=all" \
-    # --env="NVIDIA_DRIVER_CAPABILITIES=all" \
+# Set GPU-specific Docker Compose configurations
+if [ "$GPU" = "true" ]; then
+  if [ -z $(which nvidia-smi) ]; then
+    echo "NVIDIA GPU support is requested but no NVIDIA GPU found. Running without GPU support."
+    export GPU=false
+    export NVIDIA_RUNTIME="runc"
+  else
+    echo "Enabling NVIDIA GPU support."
+    export GPU=true
+    export NVIDIA_RUNTIME="nvidia"
+  fi
+else
+  echo "Running without NVIDIA GPU support."
+  export GPU=false
+  export NVIDIA_RUNTIME="runc"
+fi
 
-# If you want to pass volumes
-
-    # --volume "/dev:/dev" \
-    # --volume "$HOST_FOLDER_PATH:$CONTAINER_FOLDER_PATH" \
-
-#   --env="ROS_LOCALHOST_ONLY=1" \
-#   --env="ROS_DOMAIN_ID=91" \
+# Run Docker Compose
+docker-compose up --build

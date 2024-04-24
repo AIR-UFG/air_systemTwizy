@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  ros-node:
+    image: "air-twizy:latest"
+    container_name: air_container
+    network_mode: host
+    privileged: true
+    tty: true
+    stdin_open: true  
+    environment:
+      DISPLAY: "${DISPLAY}"
+      QT_X11_NO_MITSHM: "1"
+      XAUTHORITY: "${XAUTHORITY}"
+      GPU: "${GPU}"
+      WORLD_NAME: "${WORLD_NAME}"
+      RVIZ: "${RVIZ}"
+      FOV_UP: "${FOV_UP}"
+      FOV_DOWN: "${FOV_DOWN}"
+      WIDTH: "${WIDTH}"
+      HEIGHT: "${HEIGHT}"
+      HOST_DIR: "${HOST_DIR}"
+      NVIDIA_RUNTIME: "${NVIDIA_RUNTIME}"
+      USERNAME: "${USERNAME}"
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XAUTHORITY}:/tmp/.docker.xauth:rw
+      - ${HOST_DIR}:/home/${USERNAME}/host:rw
+    runtime: "${NVIDIA_RUNTIME}"
+    command: >
+      /bin/bash -c "ros2 launch air_sim air_simulation.launch.py world_name:=${WORLD_NAME} gpu:=${GPU} rviz:=${RVIZ} &
+                    ros2 launch lidar_spherical_projection lidar_spherical_projection.launch.py fov_up:=${FOV_UP} fov_down:=${FOV_DOWN} width:=${WIDTH} height:=${HEIGHT}"
