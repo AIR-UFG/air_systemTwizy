@@ -2,7 +2,7 @@
 
 FROM osrf/ros:humble-desktop-full
 
-ARG USERNAME=air_sim
+ARG USERNAME=air
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
