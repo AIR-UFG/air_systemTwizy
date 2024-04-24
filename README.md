@@ -22,7 +22,7 @@ Ensure that Docker is installed on your system. You can download it from the off
 Clone the air_systemTwizy repository to your local machine using the following command:
 
 ```bash
-git clone https://github.com/alunos-pfc/air_systemTwizy.git
+git clone https://github.com/alunos-pfc/air_systemTwizy.git --recursive
 ```
 
 #### Step 2: Build the Docker image
@@ -39,18 +39,19 @@ docker build -t air-twizy -f docker/Dockerfile .
 To start the simulation using docker, run the following command setting the desired parameters:
 
 ```bash
-./run.sh RVIZ=true GPU=false
+./run.sh RVIZ=true GPU=false PROJECTION=true
 ```
 
 The `run.sh` script allows you to set certain environment variables that control the behavior of the Docker container. You can set these variables by passing arguments to the script in the format KEY=value. The supported variables are:
 
 - `GPU`: Allows the user to run the PointCloud Process Plugin with GPU usage. Default value is set to `false`
 - `RVIZ`: Open Ros Visualization Tool. Default value is set to `false`.
-- WORLD_NAME: The name of the world file to be used in the simulation. Default value is set to `ufg_default.world`.
-- FOV_UP: Field of view up. Default: 15.0 degrees.
-- FOV_DOWN: Field of view down. Default: -15.0 degrees.
-- WIDTH: Width of the projection. Default: 440 pixels, due to gazebo limitations.
-- HEIGHT: Height of the projection. Default: 16 pixels, due the VLP-16 configuration.
+- `PROJECTION`: Enables the projection pf the point cloud in 2D. Default value is set to `false`.
+- `WORLD_NAME`: The name of the world file to be used in the simulation. Default value is set to `ufg_default.world`.
+- `FOV_UP`: Field of view up. Default: 15.0 degrees.
+- `FOV_DOWN`: Field of view down. Default: -15.0 degrees.
+- `WIDTH`: Width of the projection. Default: 440 pixels, due to gazebo limitations.
+- `HEIGHT`: Height of the projection. Default: 16 pixels, due the VLP-16 configuration.
 
 #### Step 2: Control the vehicle
 

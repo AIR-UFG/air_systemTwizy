@@ -15,6 +15,7 @@ services:
       GPU: "${GPU}"
       WORLD_NAME: "${WORLD_NAME}"
       RVIZ: "${RVIZ}"
+      PROJECTION: "${PROJECTION}"
       FOV_UP: "${FOV_UP}"
       FOV_DOWN: "${FOV_DOWN}"
       WIDTH: "${WIDTH}"
@@ -28,5 +29,8 @@ services:
       - ${HOST_DIR}:/home/${USERNAME}/host:rw
     runtime: "${NVIDIA_RUNTIME}"
     command: >
-      /bin/bash -c "ros2 launch air_sim air_simulation.launch.py world_name:=${WORLD_NAME} gpu:=${GPU} rviz:=${RVIZ} &
-                    ros2 launch lidar_spherical_projection lidar_spherical_projection.launch.py fov_up:=${FOV_UP} fov_down:=${FOV_DOWN} width:=${WIDTH} height:=${HEIGHT}"
+      /bin/bash -c "ros2 launch air_sim air_simulation.launch.py world_name:=${WORLD_NAME} gpu:=${GPU} rviz:=${RVIZ} projection:=${PROJECTION} & 
+        if [ \"${PROJECTION}\" = \"true\" ]; 
+          then ros2 launch lidar_spherical_projection lidar_spherical_projection.launch.py fov_up:=${FOV_UP} fov_down:=${FOV_DOWN} width:=${WIDTH} height:=${HEIGHT};
+        fi
+        tail -f /dev/null"

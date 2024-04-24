@@ -33,7 +33,7 @@ if [ "$#" -gt 0 ]; then
         
         # Validate the key and update the environment variable
         case "$key" in
-            GPU|WORLD_NAME|RVIZ|FOV_UP|FOV_DOWN|WIDTH|HEIGHT)
+            GPU|WORLD_NAME|RVIZ|PROJECTION|FOV_UP|FOV_DOWN|WIDTH|HEIGHT)
                 echo "Setting $key to $value"
                 export "$key"="$value"
                 ;;
