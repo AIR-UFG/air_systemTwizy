@@ -2,7 +2,7 @@
 
 FROM osrf/ros:humble-desktop-full
 
-ARG USERNAME=air
+ARG USERNAME=air_sim
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
@@ -32,6 +32,11 @@ USER $USERNAME
 
 WORKDIR /home/$USERNAME
 
+RUN git clone https://github.com/alunos-pfc/Cloud2DImageConverter.git && \
+    cd Cloud2DImageConverter && \
+    pip install -e '.[dev]' \
+    && rm -rf /var/lib/apt/lists/*
+
 ADD . /home/$USERNAME/ros2_ws/src/air_systemTwizy
 
 RUN sudo chown -R $USERNAME:$USERNAME /home/$USERNAME/ros2_ws
@@ -42,9 +47,16 @@ RUN mkdir -p /home/$USERNAME/.gazebo/models && cp -r /home/$USERNAME/ros2_ws/src
 
 RUN /bin/bash -c "sudo cp /home/$USERNAME/ros2_ws/src/air_systemTwizy/vehicle_simulation/air_description/urdf/sensors/VLP-16.urdf.xacro /opt/ros/humble/share/velodyne_description/urdf/"
 
-RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /home/$USERNAME/.bashrc && \
-    echo "source /home/$USERNAME/ros2_ws/install/setup.bash" >> /home/$USERNAME/.bashrc
+RUN echo "#!/bin/bash" >> /home/$USERNAME/entrypoint.sh && \
+    echo "set -e" >> /home/$USERNAME/entrypoint.sh && \
+    echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /home/$USERNAME/entrypoint.sh && \
+    echo "source /home/$USERNAME/ros2_ws/install/setup.bash" >> /home/$USERNAME/entrypoint.sh && \
+    echo "exec \"\$@\"" >> /home/$USERNAME/entrypoint.sh && \
+    echo "source /home/$USERNAME/entrypoint.sh" >> /home/$USERNAME/.bashrc && \
+    /bin/bash -c "sudo chmod +x /home/$USERNAME/entrypoint.sh"
+    
+ENTRYPOINT ["./entrypoint.sh"]
 
-ENV SHELL /bin/bash
+CMD ["/bin/bash"]
 
 
