@@ -8,22 +8,24 @@ This repository contains the Central codebase for the AIR team's sd_twizy vehicl
 
 </div>
 
-## Usage Instructions
+## Usage
 
-### Setting Up the Simulation Environment
+### Prerequisites
 
-#### Step 1: Install Docker
+#### Install Docker
 
-Ensure that Docker is installed on your system. You can download it from the official Docker website.
+Ensure that Docker is installed on your system. You can download it from the official Docker website. Docker compose is also required, and you can install it by following the instructions on the official Docker Compose website.
 
-#### Step 2: Clone the repository
+### Installation
+
+#### Step 1: Clone the repository
 Clone the air_systemTwizy repository to your local machine using the following command:
 
 ```bash
 git clone https://github.com/alunos-pfc/air_systemTwizy.git
 ```
 
-#### Step 3: Build the Docker image
+#### Step 2: Build the Docker image
 Navigate to the cloned directory and build the Docker image with the provided Dockerfile:
 
 ```bash
@@ -32,33 +34,29 @@ docker build -t air-twizy -f docker/Dockerfile .
 ```
 ### Running the Simulation
 
-#### Step 1: Start the Docker container
+#### Step 1: Start the Simulation
 
-Start the Docker container using the run.sh script. Replace <image_name> with the name of the Docker image you want to run:
-
-```bash
-./run.sh air-twizy
-```
-#### Step 2: Launch the simulation
-
-Once inside the container, you can launch the ROS2 simulation environment with the following command:
+To start the simulation using docker, run the following command setting the desired parameters:
 
 ```bash
-ros2 launch air_sim air_simulation.launch.py world_name:=ufg.world gpu:=true
+./run.sh RVIZ=true GPU=false
 ```
 
-Parameters:
+The `run.sh` script allows you to set certain environment variables that control the behavior of the Docker container. You can set these variables by passing arguments to the script in the format KEY=value. The supported variables are:
 
-- `gpu`: Allows the user to run the PointCloud Process Plugin with GPU usage. Default value is set to `false`
-- `rviz`: Open Ros Visualization Tool. Default value is set to `false`.
-- `extra_gazebo_args`: Allows the user to visualize the gazebo logs in the launch terminal. Default value must be `--verbose`.
+- `GPU`: Allows the user to run the PointCloud Process Plugin with GPU usage. Default value is set to `false`
+- `RVIZ`: Open Ros Visualization Tool. Default value is set to `false`.
+- WORLD_NAME: The name of the world file to be used in the simulation. Default value is set to `ufg_default.world`.
+- FOV_UP: Field of view up. Default: 15.0 degrees.
+- FOV_DOWN: Field of view down. Default: -15.0 degrees.
+- WIDTH: Width of the projection. Default: 440 pixels, due to gazebo limitations.
+- HEIGHT: Height of the projection. Default: 16 pixels, due the VLP-16 configuration.
 
-
-#### Step 3: Control the vehicle
+#### Step 2: Control the vehicle
 
 Once the simulation has started, press play in the Gazebo window. 
 
-Open another terminal outside the container and inside the air_systemTwizy directory. Then execute:
+Open another terminal **outside the container** and **inside the air_systemTwizy directory**. Then execute:
 
 ```bash
 ./bash_container.sh
@@ -83,44 +81,30 @@ flowchart TB
     Start --> |" X"| Stop[("Stop Vehicle")]
 ```
 </div>
-#### Record a Ros2 bag
+
+### Recording and Playing a Bag File
 
 Once all the processes above are already up and running, open another terminal outside the container and navigate to the `air_systemTwizy` directory. Execute the following commands:
 
 ```bash
 ./bash_container.sh
 ```
-Go to the `host` directory and execute the ros2 command to record the bag:
+Go to the `host` directory that is mounted inside the container:
 
 ```bash
 cd ~/host
-ros2 bag record -o <bag_name> /velodyne_points
 ```
-Control the vehicle through the city as you wish and then terminate the process with Ctrl+C. The bag will be stored in the `host` directory, which can be accessed both from within and outside the container.
 
-You can access the bag content inside the container running:
+Execute the ros2 command to record the bag:
 
 ```bash
-ros2 bag play <bag_path>
+ros2 bag record -o <bag_name> /velodyne_points
 ```
 
-And you can visualize the bag content with rviz by running:
+Control the vehicle through the city as you wish and then terminate the process with Ctrl+C. The bag will be stored in the `host` directory, which can be accessed both from within and outside the container.
 
-```
-rviz2 -d ~/ros2_ws/src/air_systemTwizy/vehicle_simulation/air_sim/config/pcd.rviz
-```
-
-NOTE: The command above will only record the `/velodyne_points` ros2 topic. If you want to record all topics, replace /velodyne_points with -a in the ros2 bag record command:
+NOTE: The command above will only record the `/velodyne_points` topic. If you want to record all topics, replace /velodyne_points with -a in the ros2 bag record command:
 
 ```
 ros2 bag record -o <bag_name> -a
 ```
-
-After recording, you can replay the bag file using the same process described earlier. 
-
-To visualize the data from the bag file, follow the same process described above to play it, and then use rviz2 with a specific configuration file. Execute the following command:
-
-```
-rviz2 -d ~/ros2_ws/src/air_systemTwizy/vehicle_simulation/air_sim/config/air.rviz
-```
-
