@@ -84,7 +84,7 @@ All rights reserved
     </plugin>
   </gazebo>
 
-  <gazebo>
+  <!-- <gazebo>
     <plugin name="vehicle_control" filename="libvehicle_control.so">
       <ros>
         <namespace>/sd_twizy</namespace>
@@ -98,7 +98,7 @@ All rights reserved
       <updateRate>100.0</updateRate>
       <alwaysOn>true</alwaysOn>
     </plugin>
-  </gazebo>
+  </gazebo> -->
   
   <gazebo>
     <plugin name="sd_control" filename="libSdControlPlugin.so">
