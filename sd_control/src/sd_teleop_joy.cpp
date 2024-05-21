@@ -1,6 +1,6 @@
 #include "sd_control/sd_teleop_joy.hpp"
 
-#include <sd_msgs/msg/sd_control.hpp>
+#include <sd_msgs/msg/sd_control.h>
 
 namespace sd_control
 {

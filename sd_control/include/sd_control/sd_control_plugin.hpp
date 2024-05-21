@@ -6,8 +6,8 @@
 #include <gazebo/transport/transport.hh>
 
 // #include <ros/ros.h>
-#include <rclpp/rclpp.hpp>
-#include <sd_msgs/SDControl.h>
+#include <rclcpp/rclcpp.hpp>
+#include <sd_msgs/msg/sd_control.h>
 
 namespace sd_control
 {
@@ -54,8 +54,8 @@ namespace sd_control
     double back_brake_torque_;
     double chassis_aero_force_gain_;
 
-    rclpp::Subscription<SDControl>::SharedPtr control_sub_;
-    rclpp::Publisher<Odometry>::SharedPtr odometry_pub_;
+    rclcpp::Subscription<SDControl>::SharedPtr control_sub_;
+    rclcpp::Publisher<Odometry>::SharedPtr odometry_pub_;
 
     gazebo::common::Time last_sim_time_;
 
