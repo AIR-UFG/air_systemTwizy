@@ -5,7 +5,8 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/transport/transport.hh>
 
-#include <ros/ros.h>
+// #include <ros/ros.h>
+#include <rclpp/rclpp.hpp>
 #include <sd_msgs/SDControl.h>
 
 namespace sd_control
@@ -27,20 +28,20 @@ namespace sd_control
 
     gazebo::physics::LinkPtr chassis_link_;
 
-    gazebo::physics::JointPtr fl_wheel_joint_;
-    gazebo::physics::JointPtr fr_wheel_joint_;
-    gazebo::physics::JointPtr bl_wheel_joint_;
-    gazebo::physics::JointPtr br_wheel_joint_;
-    gazebo::physics::JointPtr fl_wheel_steering_joint_;
-    gazebo::physics::JointPtr fr_wheel_steering_joint_;
+    gazebo::physics::JointPtr front_left_wheel_joint_;
+    gazebo::physics::JointPtr front_right_wheel_joint_;
+    gazebo::physics::JointPtr rear_left_wheel_joint_;
+    gazebo::physics::JointPtr rear_right_wheel_joint_;
+    gazebo::physics::JointPtr front_left_wheel_steering_joint_;
+    gazebo::physics::JointPtr front_right_wheel_steering_joint_;
 
-    gazebo::common::PID fl_wheel_steering_pid_;
-    gazebo::common::PID fr_wheel_steering_pid_;
+    gazebo::common::PID front_left_wheel_steering_pid_;
+    gazebo::common::PID front_right_wheel_steering_pid_;
 
-    double fl_wheel_radius_;
-    double fr_wheel_radius_;
-    double bl_wheel_radius_;
-    double br_wheel_radius_;
+    double front_left_wheel_radius_;
+    double front_right_wheel_radius_;
+    double rear_left_wheel_radius_;
+    double rear_right_wheel_radius_;
 
     double front_track_width_;
     double back_track_width_;
@@ -53,8 +54,8 @@ namespace sd_control
     double back_brake_torque_;
     double chassis_aero_force_gain_;
 
-    ros::Subscriber control_sub_;
-    ros::Publisher odometry_pub_;
+    rclpp::Subscription<SDControl>::SharedPtr control_sub_;
+    rclpp::Publisher<Odometry>::SharedPtr odometry_pub_;
 
     gazebo::common::Time last_sim_time_;
 

@@ -1,17 +1,17 @@
 #include "sd_control/sd_control_plugin.hpp"
 
 #include <gazebo/physics/physics.hh>
-#include <nav_msgs/Odometry.h>
-#include <tf/tf.h>
+#include <nav_msgs/msg/odometry.hpp>
+#include <tf2/LinearMath/Transform.h>
 
 namespace sd_control
 {
 
   SdControlPlugin::SdControlPlugin()
-    : fl_wheel_radius_{0},
-      fr_wheel_radius_{0},
-      bl_wheel_radius_{0},
-      br_wheel_radius_{0},
+    : front_left_wheel_radius_{0},
+      front_right_wheel_radius_{0},
+      rear_left_wheel_radius_{0},
+      rear_right_wheel_radius_{0},
       last_sim_time_{0},
       robot_namespace_{""}
   {
@@ -19,8 +19,9 @@ namespace sd_control
 
   void SdControlPlugin::Load(gazebo::physics::ModelPtr model, sdf::ElementPtr sdf)
   {
-    ROS_INFO("Loading plugin!");
 
+    RCLCPP_INFO(this->get_logger(), "Loading plugin!");
+    
     model_ = model;
     world_ = model_->GetWorld();
     auto physicsEngine = world_->GetPhysicsEngine();
@@ -32,10 +33,12 @@ namespace sd_control
     if (sdf->HasElement("robotNamespace"))
       robot_namespace_ = sdf->GetElement("robotNamespace")->Get<std::string>() + "/";
 
-    ros::NodeHandle nh(this->robot_namespace_);
-    control_sub_ = nh.subscribe(
-      "/sd_control", 10, &SdControlPlugin::controlCallback, this
-      );
+    auto node = std::make_shared<rclcpp::Node>(this->robot_namespace_);
+
+    control_sub_ = node->create_subscription<SDControl>(
+      "/sd_control", 
+      10, 
+      std::bind(&SdControlPlugin::controlCallback, this, std::placeholders::_1));
 
     odometry_pub_ = nh.advertise<nav_msgs::Odometry>("/odom", 1);
 
@@ -60,12 +63,12 @@ namespace sd_control
 
     chassis_link_ = findLink("chassis");
 
-    fl_wheel_joint_ = findJoint("front_left_wheel");
-    fr_wheel_joint_ = findJoint("front_right_wheel");
-    bl_wheel_joint_ = findJoint("back_left_wheel");
-    br_wheel_joint_ = findJoint("back_right_wheel");
-    fl_wheel_steering_joint_ = findJoint("front_left_wheel_steering");
-    fr_wheel_steering_joint_ = findJoint("front_right_wheel_steering");
+    front_left_wheel_joint_ = findJoint("front_left_wheel");
+    front_right_wheel_joint_ = findJoint("front_right_wheel");
+    rear_left_wheel_joint_ = findJoint("back_left_wheel");
+    rear_right_wheel_joint_ = findJoint("back_right_wheel");
+    front_left_wheel_steering_joint_ = findJoint("front_left_wheel_steering");
+    front_right_wheel_steering_joint_ = findJoint("front_right_wheel_steering");
 
     // Read parameters
     auto findParameter = [&](std::string const& param_name, double default_value) {
@@ -81,45 +84,45 @@ namespace sd_control
     back_brake_torque_ = findParameter("back_brake_torque", 500.0);
     chassis_aero_force_gain_ = findParameter("chassis_aero_force_gain", 1.0);
 
-    fl_wheel_steering_pid_.SetPGain(findParameter("fl_wheel_steering_p_gain", 0.0));
-    fl_wheel_steering_pid_.SetIGain(findParameter("fl_wheel_steering_i_gain", 0.0));
-    fl_wheel_steering_pid_.SetDGain(findParameter("fl_wheel_steering_d_gain", 0.0));
+    front_left_steering_pid_.SetPGain(findParameter("front_left_steering_p_gain", 0.0));
+    front_left_steering_pid_.SetIGain(findParameter("front_left_steering_i_gain", 0.0));
+    front_left_steering_pid_.SetDGain(findParameter("front_left_steering_d_gain", 0.0));
 
-    fr_wheel_steering_pid_.SetPGain(findParameter("fr_wheel_steering_p_gain", 0.0));
-    fr_wheel_steering_pid_.SetIGain(findParameter("fr_wheel_steering_i_gain", 0.0));
-    fr_wheel_steering_pid_.SetDGain(findParameter("fr_wheel_steering_d_gain", 0.0));
+    front_right_steering_pid_.SetPGain(findParameter("front_right_steering_p_gain", 0.0));
+    front_right_steering_pid_.SetIGain(findParameter("front_right_steering_i_gain", 0.0));
+    front_right_steering_pid_.SetDGain(findParameter("front_right_steering_d_gain", 0.0));
 
-    fl_wheel_steering_pid_.SetCmdMin(-5000);
-    fl_wheel_steering_pid_.SetCmdMax(5000);
-    fr_wheel_steering_pid_.SetCmdMin(-5000);
-    fr_wheel_steering_pid_.SetCmdMax(5000);
+    front_left_steering_pid_.SetCmdMin(-5000);
+    front_left_steering_pid_.SetCmdMax(5000);
+    front_right_steering_pid_.SetCmdMin(-5000);
+    front_right_steering_pid_.SetCmdMax(5000);
 
     // Determine physical properties
     auto id = unsigned{0};
-    fl_wheel_radius_ = collisionRadius(fl_wheel_joint_->GetChild()->GetCollision(id));
-    fr_wheel_radius_ = collisionRadius(fr_wheel_joint_->GetChild()->GetCollision(id));
-    bl_wheel_radius_ = collisionRadius(bl_wheel_joint_->GetChild()->GetCollision(id));
-    br_wheel_radius_ = collisionRadius(br_wheel_joint_->GetChild()->GetCollision(id));
+    front_left_radius_ = collisionRadius(front_left_joint_->GetChild()->GetCollision(id));
+    front_right_radius_ = collisionRadius(front_right_joint_->GetChild()->GetCollision(id));
+    rear_left_radius_ = collisionRadius(rear_left_joint_->GetChild()->GetCollision(id));
+    rear_right_radius_ = collisionRadius(rear_right_joint_->GetChild()->GetCollision(id));
 
-    ROS_INFO_STREAM("Radii found:" << fl_wheel_radius_ << " " << fr_wheel_radius_ << " " << bl_wheel_radius_ << " " << br_wheel_radius_);
+    ROS_INFO_STREAM("Radii found:" << front_left_radius_ << " " << front_right_radius_ << " " << rear_left_radius_ << " " << rear_right_radius_);
 
     // Compute wheelbase, frontTrackWidth, and rearTrackWidth
     //  first compute the positions of the 4 wheel centers
     //  again assumes wheel link is child of joint and has only one collision
-    auto fl_center_pos = fl_wheel_joint_->GetChild()->GetCollision(id)->GetWorldPose().Ign().Pos();
-    auto fr_center_pos = fr_wheel_joint_->GetChild()->GetCollision(id)->GetWorldPose().Ign().Pos();
-    auto bl_center_pos = bl_wheel_joint_->GetChild()->GetCollision(id)->GetWorldPose().Ign().Pos();
-    auto br_center_pos = br_wheel_joint_->GetChild()->GetCollision(id)->GetWorldPose().Ign().Pos();
+    auto front_left_center_pos = front_left_joint_->GetChild()->GetCollision(id)->GetWorldPose().Ign().Pos();
+    auto front_right_pos = front_right_joint_->GetChild()->GetCollision(id)->GetWorldPose().Ign().Pos();
+    auto rear_left_pos = rear_left_joint_->GetChild()->GetCollision(id)->GetWorldPose().Ign().Pos();
+    auto rear_right_pos = rear_right_joint_->GetChild()->GetCollision(id)->GetWorldPose().Ign().Pos();
 
     // track widths are computed first
-    auto vec3 = fl_center_pos - fr_center_pos;
+    auto vec3 = front_left_center_pos - front_right_pos;
     front_track_width_ = vec3.Length();
-    vec3 = fl_center_pos - fr_center_pos;
+    vec3 = front_left_center_pos - front_right_pos;
     back_track_width_ = vec3.Length();
 
     // to compute wheelbase, first position of axle centers are computed
-    auto front_axle_pos = (fl_center_pos + fr_center_pos) / 2;
-    auto back_axle_pos = (bl_center_pos + br_center_pos) / 2;
+    auto front_axle_pos = (front_left_center_pos + front_right_pos) / 2;
+    auto back_axle_pos = (rear_left_pos + rear_right_pos) / 2;
     // then the wheelbase is the distance between the axle centers
     vec3 = front_axle_pos - back_axle_pos;
     wheel_base_length_ = vec3.Length();
@@ -153,13 +156,13 @@ namespace sd_control
       return;
     }
 
-    auto fl_steering_angle = fl_wheel_steering_joint_->GetAngle(0).Radian();
-    auto fr_steering_angle = fr_wheel_steering_joint_->GetAngle(0).Radian();
+    auto fl_steering_angle = front_left_steering_joint_->GetAngle(0).Radian();
+    auto fr_steering_angle = front_right_steering_joint_->GetAngle(0).Radian();
 
-    auto fl_wheel_angular_velocity = fl_wheel_joint_->GetVelocity(0);
-    auto fr_wheel_angular_velocity = fr_wheel_joint_->GetVelocity(0);
-    auto bl_wheel_angular_velocity = bl_wheel_joint_->GetVelocity(0);
-    auto br_wheel_angular_velocity = br_wheel_joint_->GetVelocity(0);
+    auto front_left_angular_velocity = front_left_joint_->GetVelocity(0);
+    auto front_right_angular_velocity = front_right_joint_->GetVelocity(0);
+    auto rear_left_angular_velocity = rear_left_joint_->GetVelocity(0);
+    auto rear_right_angular_velocity = rear_right_joint_->GetVelocity(0);
 
     auto chassis_linear_velocity = chassis_link_->GetWorldCoGLinearVel();
 
@@ -173,20 +176,20 @@ namespace sd_control
 
     // Ackermann steering geometry
     auto tan_steer = std::tan(steer_angle);
-    auto fl_wheel_steering_command =
+    auto front_left_steering_command =
       std::atan2(tan_steer, 1.0 + front_track_width_ / 2 / wheel_base_length_ * tan_steer);
-    auto fr_wheel_steering_command =
+    auto front_right_steering_command =
       std::atan2(tan_steer, 1.0 - front_track_width_ / 2 / wheel_base_length_ * tan_steer);
 
     // Update steering PID controllers
-    auto fl_steering_error = fl_steering_angle - fl_wheel_steering_command;
-    auto fr_steering_error = fr_steering_angle - fr_wheel_steering_command;
+    auto fl_steering_error = fl_steering_angle - front_left_steering_command;
+    auto fr_steering_error = fr_steering_angle - front_right_steering_command;
 
-    auto fl_wheel_steering_force = fl_wheel_steering_pid_.Update(fl_steering_error, dt);
-    auto fr_wheel_steering_force = fr_wheel_steering_pid_.Update(fr_steering_error, dt);
+    auto front_left_steering_force = front_left_steering_pid_.Update(fl_steering_error, dt);
+    auto front_right_steering_force = front_right_steering_pid_.Update(fr_steering_error, dt);
 
-    fl_wheel_steering_joint_->SetForce(0, fl_wheel_steering_force);
-    fr_wheel_steering_joint_->SetForce(0, fr_wheel_steering_force);
+    front_left_steering_joint_->SetForce(0, front_left_steering_force);
+    front_right_steering_joint_->SetForce(0, front_right_steering_force);
 
     auto throttle_ratio = 0.0;
     auto brake_ratio = 0.0;
@@ -205,18 +208,18 @@ namespace sd_control
     brake_ratio = std::max(regen_braking_ratio - throttle_ratio, brake_ratio);
     brake_ratio = std::max(0.0, std::min(1.0, brake_ratio));
 
-    fl_wheel_joint_->SetParam("friction", 0, brake_ratio * front_brake_torque_);
-    fr_wheel_joint_->SetParam("friction", 0, brake_ratio * front_brake_torque_);
-    bl_wheel_joint_->SetParam("friction", 0, brake_ratio * back_brake_torque_);
-    br_wheel_joint_->SetParam("friction", 0, brake_ratio * back_brake_torque_);
+    front_left_joint_->SetParam("friction", 0, brake_ratio * front_brake_torque_);
+    front_right_joint_->SetParam("friction", 0, brake_ratio * front_brake_torque_);
+    rear_left_joint_->SetParam("friction", 0, brake_ratio * back_brake_torque_);
+    rear_right_joint_->SetParam("friction", 0, brake_ratio * back_brake_torque_);
 
     auto throttle_torque = 0.0;
-    if (std::abs(bl_wheel_angular_velocity * bl_wheel_radius_) < max_speed_ &&
-        std::abs(br_wheel_angular_velocity * br_wheel_radius_) < max_speed_)
+    if (std::abs(rear_left_angular_velocity * rear_left_radius_) < max_speed_ &&
+        std::abs(rear_right_angular_velocity * rear_right_radius_) < max_speed_)
       throttle_torque = throttle_ratio * max_torque_;
 
-    bl_wheel_joint_->SetForce(0, throttle_torque);
-    br_wheel_joint_->SetForce(0, throttle_torque);
+    rear_left_joint_->SetForce(0, throttle_torque);
+    rear_right_joint_->SetForce(0, throttle_torque);
 
 
     last_sim_time_ = cur_time;

@@ -1,17 +1,16 @@
 #ifndef SD_CONTROL__SD_TELEOP_JOY_HPP_
 #define SD_CONTROL__SD_TELEOP_JOY_HPP_
 
-#include <ros/ros.h>
-
-#include <sensor_msgs/Joy.h>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/joy.hpp>
 
 namespace sd_control
 {
 
-  class SdTeleopJoy
+  class SdTeleopJoy : public rclcpp::Node
   {
   public:
-    SdTeleopJoy(ros::NodeHandle * nh, ros::NodeHandle * nh_param);
+    SdTeleopJoy(const std::string & name, const std::string & namespace_ = "");
 
   private:
     int enable_button_;
@@ -20,10 +19,10 @@ namespace sd_control
 
     std::map<std::string, double> scale_throttle_map_;
 
-    ros::Subscriber joy_sub_;
-    ros::Publisher control_pub_;
+    rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joy_sub_;
+    rclcpp::Publisher<SDControl>::SharedPtr control_pub_;
 
-    void joyCallback(sensor_msgs::Joy::ConstPtr const & joy);
+    void joyCallback(sensor_msgs::msg::Joy::SharedPtr joy);
   };
 }
 

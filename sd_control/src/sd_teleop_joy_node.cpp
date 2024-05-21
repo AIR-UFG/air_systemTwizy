@@ -2,12 +2,13 @@
 
 int main(int argc, char *argv[])
 {
-  ros::init(argc, argv, "sd_teleop_joy_node");
+  rclcpp::init(argc, argv);
 
-  auto nh = ros::NodeHandle{""};
-  auto nh_param = ros::NodeHandle{"~"};
+  auto joy_teleop = std::make_shared<sd_control::SdTeleopJoy>("sd_teleop_joy_node");
 
-  auto joy_teleop = sd_control::SdTeleopJoy{&nh, &nh_param};
+  rclcpp::spin(joy_teleop);
 
-  ros::spin();
+  rclcpp::shutdown();
+
+  return 0;
 }
