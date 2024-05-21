@@ -35,10 +35,10 @@ namespace vehicle_control_gazebo {
 
             gazebo::event::ConnectionPtr update_connection_;
             
-            gazebo::physics:: JointPtr front_left_wheel_joint;
-            gazebo::physics:: JointPtr front_right_wheel_joint;
-            gazebo::physics:: JointPtr rear_left_wheel_joint;
-            gazebo::physics:: JointPtr rear_right_wheel_joint;
+            gazebo::physics::JointPtr front_left_wheel_joint;
+            gazebo::physics::JointPtr front_right_wheel_joint;
+            gazebo::physics::JointPtr rear_left_wheel_joint;
+            gazebo::physics::JointPtr rear_right_wheel_joint;
 
             gazebo::physics::JointPtr front_left_steer_joint;
             gazebo::physics::JointPtr front_right_steer_joint;
