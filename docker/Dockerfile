@@ -43,7 +43,7 @@ ADD . /home/$USERNAME/ros2_ws/src/air_systemTwizy
 
 RUN sudo chown -R $USERNAME:$USERNAME /home/$USERNAME/ros2_ws
 
-RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd /home/$USERNAME/ros2_ws && colcon build --symlink-install"
+RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd /home/$USERNAME/ros2_ws && colcon build --symlink-install --packages-skip sd_control"
 
 RUN mkdir -p /home/$USERNAME/.gazebo/models && cp -r /home/$USERNAME/ros2_ws/src/air_systemTwizy/vehicle_simulation/air_sim/models/* /home/$USERNAME/.gazebo/models
 
