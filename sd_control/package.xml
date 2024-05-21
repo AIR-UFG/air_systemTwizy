@@ -4,9 +4,9 @@
   <version>2.2.0</version>
   <description>The sd_control package</description>
 
-  <!-- <author email="sander@parkopedia.com">Sander van Dijk</author> -->
+  <author email="sander@parkopedia.com">Sander van Dijk</author>
 
-  <!-- <maintainer email="fionan@streetdrone.com">Fionán O'Sullivan</maintainer> -->
+  <maintainer email="fionan@streetdrone.com">Fionán O'Sullivan</maintainer>
 
   <license>Apache 2</license>
 
