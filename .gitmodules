@@ -1,6 +1,6 @@
 [submodule "lidar_spherical_projection"]
 	path = lidar_spherical_projection
-	url = https://github.com/AIR-UFG/lidar_spherical_projection.git
+	url = git@github.com:AIR-UFG/lidar_spherical_projection.git
 [submodule "vehicle_interface/SD-VehicleInterface"]
 	path = vehicle_interface/SD-VehicleInterface
 	url = git@github.com:Monash-Connected-Autonomous-Vehicle/SD-VehicleInterface.git
