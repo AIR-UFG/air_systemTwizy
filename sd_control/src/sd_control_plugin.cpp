@@ -6,6 +6,7 @@
 #include <ignition/math/Vector3.hh>
 #include <ignition/math/Pose3.hh>
 #include <sd_msgs/msg/sd_control.hpp>
+// #include "sd_control_plugin.hpp"
 
 namespace sd_control
 {
@@ -63,6 +64,11 @@ namespace sd_control
               robot_namespace_ = sdf->GetElement("robotNamespace")->Get<std::string>() + "/";
           }
 
+        // Ensure robot_namespace_ is not empty
+          if (robot_namespace_.empty()) {
+              robot_namespace_ = "sd_twizy";
+          }
+          
           rclcpp::Node::SharedPtr node = std::make_shared<rclcpp::Node>(robot_namespace_);
           RCLCPP_INFO(node->get_logger(), "Loading plugin!");
 
@@ -186,7 +192,10 @@ namespace sd_control
       }
   }
 
-  void SdControlPlugin::controlCallback(const sd_msgs::msg::SDControl & msg)
+  void SdControlPlugin::Reset()
+  {
+  }
+  void SdControlPlugin::controlCallback(const sd_msgs::msg::SDControl &msg)
   {
     std::lock_guard<std::mutex> lock{mutex_};
     control_cmd_ = msg;
