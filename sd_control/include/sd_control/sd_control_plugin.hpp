@@ -4,10 +4,9 @@
 #include <gazebo/common/PID.hh>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/transport/transport.hh>
-
-// #include <ros/ros.h>
-#include <rclpp/rclpp.hpp>
-#include <sd_msgs/SDControl.h>
+#include <rclcpp/rclcpp.hpp>
+#include <sd_msgs/msg/sd_control.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 
 namespace sd_control
 {
@@ -17,7 +16,9 @@ namespace sd_control
   public:
     SdControlPlugin();
 
-    void Load(gazebo::physics::ModelPtr model, sdf::ElementPtr sdf);
+  protected:
+      void Load(gazebo::physics::ModelPtr model, sdf::ElementPtr sdf);
+      void Reset();
 
   private:
     std::string robot_namespace_;
@@ -54,12 +55,12 @@ namespace sd_control
     double back_brake_torque_;
     double chassis_aero_force_gain_;
 
-    rclpp::Subscription<SDControl>::SharedPtr control_sub_;
-    rclpp::Publisher<Odometry>::SharedPtr odometry_pub_;
+    rclcpp::Subscription<sd_msgs::msg::SDControl>::SharedPtr control_sub_;
+    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odometry_pub_;
 
     gazebo::common::Time last_sim_time_;
 
-    sd_msgs::SDControl control_cmd_;
+    sd_msgs::msg::SDControl control_cmd_;
 
     std::mutex mutex_;
 
@@ -68,7 +69,7 @@ namespace sd_control
 
     void publishOdometry();
 
-    void controlCallback(const sd_msgs::SDControl & msg);
+    void controlCallback(const sd_msgs::msg::SDControl & msg);
 
     double collisionRadius(gazebo::physics::CollisionPtr coll) const;
   };
