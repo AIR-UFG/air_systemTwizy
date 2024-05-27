@@ -26,7 +26,6 @@ RUN apt update && apt install -y \
     ros-humble-joint-state-publisher \
     ros-humble-velodyne* \
     ros-humble-ackermann* \
-    ros-humble-socketcan-interface \
     ros-humble-can-msgs \
     && rm -rf /var/lib/apt/lists/*
 
@@ -34,16 +33,16 @@ USER $USERNAME
 
 WORKDIR /home/$USERNAME
 
-RUN git clone https://github.com/alunos-pfc/Cloud2DImageConverter.git && \
-    cd Cloud2DImageConverter && \
-    pip install -e '.[dev]' \
-    && rm -rf /var/lib/apt/lists/*
+# RUN git clone https://github.com/alunos-pfc/Cloud2DImageConverter.git && \
+#     cd Cloud2DImageConverter && \
+#     pip install -e '.[dev]' \
+#     && rm -rf /var/lib/apt/lists/*
 
 ADD . /home/$USERNAME/ros2_ws/src/air_systemTwizy
 
 RUN sudo chown -R $USERNAME:$USERNAME /home/$USERNAME/ros2_ws
 
-RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd /home/$USERNAME/ros2_ws && colcon build --symlink-install --packages-skip sd_control"
+RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd /home/$USERNAME/ros2_ws && colcon build --symlink-install --packages-skip sd_control lidar_spherical_projection"
 
 RUN mkdir -p /home/$USERNAME/.gazebo/models && cp -r /home/$USERNAME/ros2_ws/src/air_systemTwizy/vehicle_simulation/air_sim/models/* /home/$USERNAME/.gazebo/models
 
