@@ -45,6 +45,9 @@ def generate_launch_description():
         executable='robot_state_publisher',
         name='robot_state_publisher',
         parameters=[{'robot_description': robot_urdf}],
+        remappings=[
+            ('/joint_states', '/sd_twizy/joint_states')
+        ]
     )
 
     joint_state_publisher_node = Node(
@@ -87,7 +90,6 @@ def generate_launch_description():
         output='screen',
     )
 
-
     rviz2_node = Node(
         package='rviz2',
         executable='rviz2',
@@ -102,10 +104,9 @@ def generate_launch_description():
         gazebo_server,
         gazebo_client,
         urdf_spawn_node,
-        rviz2_node
+        rviz2_node,
+        SetEnvironmentVariable(
+            name='GAZEBO_PLUGIN_PATH',
+            value=sd_control_lib_dir
+        )
     ])
-    
-        #     SetEnvironmentVariable(
-        #     name='GAZEBO_PLUGIN_PATH',
-        #     value=sd_control_lib_dir
-        # )

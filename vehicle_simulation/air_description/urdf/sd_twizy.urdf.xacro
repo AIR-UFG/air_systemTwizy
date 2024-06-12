@@ -93,9 +93,9 @@
    -->
   <gazebo>
     <plugin name="sd_control" filename="/home/air/ros2_ws/install/sd_control/lib/sd_control/libSdControlPlugin.so">
-      <ros>
+      <!-- <ros>
         <namespace>/sd_twizy</namespace>
-      </ros>
+      </ros> -->
       <chassis>base_link</chassis>
       <front_left_wheel>front_left_wheel_joint</front_left_wheel>
       <front_right_wheel>front_right_wheel_joint</front_right_wheel>

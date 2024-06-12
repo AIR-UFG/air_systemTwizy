@@ -24,7 +24,7 @@ HOST_FOLDER_PATH="$(pwd)/../host" # Be sure to change this to the desired path
 CONTAINER_FOLDER_PATH="/home/$USERNAME/host"
 
 # Run the Docker container with the selected image and configurations for GUI applications
-docker run -it --rm \
+docker run -it \
     --user root \
     --name air_container \
     --privileged \

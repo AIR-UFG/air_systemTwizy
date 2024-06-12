@@ -15,10 +15,11 @@ namespace sd_control
   {
   public:
     SdControlPlugin();
+    virtual ~SdControlPlugin() = default;
 
   protected:
-      void Load(gazebo::physics::ModelPtr model, sdf::ElementPtr sdf);
-      void Reset();
+    virtual void Load(gazebo::physics::ModelPtr model, sdf::ElementPtr sdf);
+    virtual void Reset();
 
   private:
     std::string robot_namespace_;
