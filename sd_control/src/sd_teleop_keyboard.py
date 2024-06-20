@@ -65,7 +65,7 @@ def getKey():
     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
     return key
 
-class TeleopTwistKeyboard(Node):
+class TeleopTwistKeyboard(Node):    
     def __init__(self):
         super().__init__('teleop_twist_keyboard')
         self.pub = self.create_publisher(SDControl, '/sd_control', 10)

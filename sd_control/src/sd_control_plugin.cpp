@@ -58,17 +58,20 @@ namespace sd_control
 
       model_ = model;
       world_ = model_->GetWorld();
+      auto physicsEngine = world_->Physics();
+      physicsEngine->SetParam("friction_model", std::string{"cone_model"});
       gznode_ = gazebo::transport::NodePtr(new gazebo::transport::Node());
       gznode_->Init();
 
       if (sdf->HasElement("robotNamespace")) {
-        robot_namespace_ = sdf->GetElement("robotNamespace")->Get<std::string>() + "/";
+        // robot_namespace_ = sdf->GetElement("robotNamespace")->Get<std::string>() + "/";
+        robot_namespace_ = sdf->GetElement("robotNamespace")->Get<std::string>();
       }
 
-      // Ensure robot_namespace_ is not empty
-      if (robot_namespace_.empty()) {
-        robot_namespace_ = "sd_twizy";
-      }
+      // // Ensure robot_namespace_ is not empty
+      // if (robot_namespace_.empty()) {
+      //   robot_namespace_ = "sd_twizy/";
+      // }
 
       rclcpp::Node::SharedPtr node = std::make_shared<rclcpp::Node>(robot_namespace_);
       RCLCPP_INFO(node->get_logger(), "Loading plugin!");
@@ -102,7 +105,7 @@ namespace sd_control
       gzdbg << "Finding chassis link..." << std::endl;
       chassis_link_ = findLink("chassis");
 
-      gzdbg << "Finding wheel and steering joints..." << std::endl;
+      gzdbg << "Finding wheel and steering jnodeoints..." << std::endl;
       front_left_wheel_joint_ = findJoint("front_left_wheel");
       front_right_wheel_joint_ = findJoint("front_right_wheel");
       rear_left_wheel_joint_ = findJoint("rear_left_wheel");
@@ -162,17 +165,17 @@ namespace sd_control
       // Compute wheelbase, frontTrackWidth, and rearTrackWidth
       gzdbg << "Computing wheelbase and track widths..." << std::endl;
       auto front_left_center_pos = front_left_wheel_joint_->GetChild()->GetCollision(id)->WorldPose().Pos();
-      auto front_right_pos = front_right_wheel_joint_->GetChild()->GetCollision(id)->WorldPose().Pos();
-      auto rear_left_pos = rear_left_wheel_joint_->GetChild()->GetCollision(id)->WorldPose().Pos();
-      auto rear_right_pos = rear_right_wheel_joint_->GetChild()->GetCollision(id)->WorldPose().Pos();
+      auto front_right_center_pos = front_right_wheel_joint_->GetChild()->GetCollision(id)->WorldPose().Pos();
+      auto rear_left_center_pos = rear_left_wheel_joint_->GetChild()->GetCollision(id)->WorldPose().Pos();
+      auto rear_right_center_pos = rear_right_wheel_joint_->GetChild()->GetCollision(id)->WorldPose().Pos();
 
-      auto vec3 = front_left_center_pos - front_right_pos;
+      auto vec3 = front_left_center_pos - front_right_center_pos;
       front_track_width_ = vec3.Length();
-      vec3 = rear_left_pos - rear_right_pos;
+      vec3 = rear_left_center_pos - rear_right_center_pos;
       back_track_width_ = vec3.Length();
 
-      auto front_axle_pos = (front_left_center_pos + front_right_pos) / 2;
-      auto back_axle_pos = (rear_left_pos + rear_right_pos) / 2;
+      auto front_axle_pos = (front_left_center_pos + front_right_center_pos) / 2;
+      auto back_axle_pos = (rear_left_center_pos + rear_right_center_pos) / 2;
       vec3 = front_axle_pos - back_axle_pos;
       wheel_base_length_ = vec3.Length();
 
@@ -187,9 +190,10 @@ namespace sd_control
     }
   }
 
+  // Revisar essa função
   void SdControlPlugin::controlCallback(const sd_msgs::msg::SDControl &msg)
   {
-    gzdbg << "Received control command: steer=" << msg.steer << ", torque=" << msg.torque << std::endl;
+    // gzdbg << "Received control command: steer=" << msg.steer << ", torque=" << msg.torque << std::endl;
     std::lock_guard<std::mutex> lock{mutex_};
     control_cmd_ = msg;
     if (control_cmd_.torque > 0 && control_cmd_.torque <= 25) {
@@ -204,40 +208,61 @@ namespace sd_control
 
     auto cur_time = world_->SimTime();
     auto dt = (cur_time - last_sim_time_).Double();
-    if (dt < 0) {
-      gzdbg << "Negative delta time, skipping update" << std::endl;
-      return;
-    } else if (dt == 0.0) {
-      gzdbg << "Zero delta time, skipping update" << std::endl;
-      return;
+    if (dt <= 0) {
+        gzdbg << "Invalid delta time, skipping update" << std::endl; 
+        return;
     }
+
+    // if (dt < 0) {
+    //   // TODO: reset
+    //   return;
+    // }
+    // else if (dt == 0.0)
+    // {
+    //   // TODO: use ignition::math::equal?
+    //   return;
+    // }
+
+    // Fetch control command
+    // auto steer = control_cmd_.steer;
+    // auto torque = control_cmd_.torque;
+
+    // gzdbg << "Updating with steer=" << steer << ", torque=" << torque << std::endl;
 
     auto front_left_steering_angle = front_left_wheel_steering_joint_->Position(0);
     auto front_right_steering_angle = front_right_wheel_steering_joint_->Position(0);
 
-    auto rear_left_angular_velocity = rear_left_wheel_joint_->GetVelocity(0);
-    auto rear_right_angular_velocity = rear_right_wheel_joint_->GetVelocity(0);
+    auto front_left_wheel_angular_velocity = front_left_wheel_joint_->GetVelocity(0);
+    auto front_right_wheel_angular_velocity = front_right_wheel_joint_->GetVelocity(0);
+    auto rear_left_wheel_angular_velocity = rear_left_wheel_joint_->GetVelocity(0);
+    auto rear_right_wheel_angular_velocity = rear_right_wheel_joint_->GetVelocity(0);
 
     auto chassis_linear_velocity = chassis_link_->WorldCoGLinearVel();
 
-    auto drag_force = -chassis_aero_force_gain_ * chassis_linear_velocity.Length() * chassis_linear_velocity.Normalized();
+    auto drag_force = -chassis_aero_force_gain_
+      * chassis_linear_velocity.SquaredLength()
+      * chassis_linear_velocity.Normalize();
     chassis_link_->AddForce(drag_force);
 
     auto steer_ratio = std::max(-100.0, std::min(100.0, control_cmd_.steer)) / 100.0;
     auto steer_angle = steer_ratio * max_steer_;
 
+    // Ackermann steering geometry
     auto tan_steer = std::tan(steer_angle);
-    auto front_left_steering_command = std::atan2(tan_steer, 1.0 + front_track_width_ / 2 / wheel_base_length_ * tan_steer);
-    auto front_right_steering_command = std::atan2(tan_steer, 1.0 - front_track_width_ / 2 / wheel_base_length_ * tan_steer);
+    auto front_left_wheel_steering_command =
+      std::atan2(tan_steer, 1.0 + front_track_width_ / 2 / wheel_base_length_ * tan_steer);
+    auto front_right_wheel_steering_command =
+      std::atan2(tan_steer, 1.0 - front_track_width_ / 2 / wheel_base_length_ * tan_steer);
 
-    auto front_left_steering_error = front_left_steering_angle - front_left_steering_command;
-    auto front_right_steering_error = front_right_steering_angle - front_right_steering_command;
+    // Update steering PID controllers
+    auto front_left_steering_error = front_left_steering_angle - front_left_wheel_steering_command;
+    auto front_right_steering_error = front_right_steering_angle - front_right_wheel_steering_command;
 
-    auto front_left_steering_force = front_left_wheel_steering_pid_.Update(front_left_steering_error, dt);
-    auto front_right_steering_force = front_right_wheel_steering_pid_.Update(front_right_steering_error, dt);
+    auto front_left_wheel_steering_force = front_left_wheel_steering_pid_.Update(front_left_steering_error, dt);
+    auto front_right_wheel_steering_force = front_right_wheel_steering_pid_.Update(front_right_steering_error, dt);
 
-    front_left_wheel_steering_joint_->SetForce(0, front_left_steering_force);
-    front_right_wheel_steering_joint_->SetForce(0, front_right_steering_force);
+    front_left_wheel_steering_joint_->SetForce(0, front_left_wheel_steering_force);
+    front_right_wheel_steering_joint_->SetForce(0, front_right_wheel_steering_force);
 
     auto throttle_ratio = 0.0;
     auto brake_ratio = 0.0;
@@ -247,6 +272,12 @@ namespace sd_control
       brake_ratio = std::min(100.0, -control_cmd_.torque) / 100.0;
 
     auto regen_braking_ratio = 0.025;
+
+    // use regen braking, unless it is overcome by throttle, or direct brake ratio is higher
+    // examples:
+    // * throttle = 0, brake = 0 ==> brake_ratio = regen_braking_ratio
+    // * throttle = 0, brake > regen ==> brake_ratio = brake_ratio
+    // * throttle > regen_braking_ratio, brake_ratio = 0 ==> brake_ratio = 0
     brake_ratio = std::max(regen_braking_ratio - throttle_ratio, brake_ratio);
     brake_ratio = std::max(0.0, std::min(1.0, brake_ratio));
 
@@ -256,17 +287,18 @@ namespace sd_control
     rear_right_wheel_joint_->SetParam("friction", 0, brake_ratio * back_brake_torque_);
 
     auto throttle_torque = 0.0;
-    if (std::abs(rear_left_angular_velocity * rear_left_wheel_radius_) < max_speed_ &&
-        std::abs(rear_right_angular_velocity * rear_right_wheel_radius_) < max_speed_)
+    if (std::abs(rear_left_wheel_angular_velocity * rear_left_wheel_radius_) < max_speed_ &&
+        std::abs(rear_right_wheel_angular_velocity * rear_right_wheel_radius_) < max_speed_)
       throttle_torque = throttle_ratio * max_torque_;
 
     rear_left_wheel_joint_->SetForce(0, throttle_torque);
     rear_right_wheel_joint_->SetForce(0, throttle_torque);
 
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Update called. steer_angle: %f, throttle_torque: %f, brake_ratio: %f", steer_angle, throttle_torque, brake_ratio);
-
-    last_sim_time_ = cur_time;
+    // Update the simulation time
+    last_sim_time_ = cur_time; 
   }
+
+
 
   double SdControlPlugin::collisionRadius(gazebo::physics::CollisionPtr coll) const
   {

@@ -19,7 +19,7 @@ def generate_launch_description():
 
     share_dir = get_package_share_directory('air_description')
     rviz_dir = get_package_share_directory('air_sim')
-    sd_control_lib_dir = os.path.join(get_package_share_directory('sd_control'), 'lib', 'sd_control')
+    # sd_control_lib_dir = os.path.join(get_package_share_directory('sd_control'), 'lib', 'sd_control')
     
     world_name = LaunchConfiguration('world_name', default='default.world')
     declare_world_name_arg = DeclareLaunchArgument(
@@ -105,8 +105,8 @@ def generate_launch_description():
         gazebo_client,
         urdf_spawn_node,
         rviz2_node,
-        SetEnvironmentVariable(
-            name='GAZEBO_PLUGIN_PATH',
-            value=sd_control_lib_dir
-        )
+        # SetEnvironmentVariable(
+        #     name='GAZEBO_PLUGIN_PATH',
+        #     value=sd_control_lib_dir
+        # )
     ])

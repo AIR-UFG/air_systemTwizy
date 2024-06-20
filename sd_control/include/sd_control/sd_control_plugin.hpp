@@ -7,6 +7,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sd_msgs/msg/sd_control.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+#include <gazebo_ros/node.hpp>
 
 namespace sd_control
 {
@@ -68,7 +69,7 @@ namespace sd_control
     gazebo::event::ConnectionPtr update_connection_;
     void Update();
 
-    void publishOdometry();
+    // void publishOdometry();
 
     void controlCallback(const sd_msgs::msg::SDControl & msg);
 

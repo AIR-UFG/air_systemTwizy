@@ -20,8 +20,8 @@ xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
 
 # Create a volume to share files between the host and the container
 
-HOST_FOLDER_PATH="$(pwd)/../host" # Be sure to change this to the desired path
-CONTAINER_FOLDER_PATH="/home/$USERNAME/host"
+HOST_FOLDER_PATH="/home/matteus/victor/lume/tmp/workspace/air_systemTwizy" # Be sure to change this to the desired path
+CONTAINER_FOLDER_PATH="/home/$USERNAME/ros2_ws/src/air_systemTwizy" # Be sure to change this to the desired path
 
 # Run the Docker container with the selected image and configurations for GUI applications
 docker run -it \

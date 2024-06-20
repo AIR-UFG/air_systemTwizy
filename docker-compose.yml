@@ -23,6 +23,7 @@ services:
       HOST_DIR: "${HOST_DIR}"
       NVIDIA_RUNTIME: "${NVIDIA_RUNTIME}"
       USERNAME: "${USERNAME}"
+      ROS_LOCALHOST_ONLY: "1"
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${XAUTHORITY}:/tmp/.docker.xauth:rw
