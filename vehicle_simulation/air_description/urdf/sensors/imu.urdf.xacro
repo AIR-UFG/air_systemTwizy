@@ -51,7 +51,7 @@
             <plugin name="bytes_imu" filename="libgazebo_ros_imu_sensor.so">
                 <ros>
                     <namespace>imu</namespace>
-                    <remapping>~/out:=/imu_raw</remapping>
+                    <remapping>~/out:=/sd_imu_raw</remapping>
                 </ros>
                 <initial_orientation_as_reference>false</initial_orientation_as_reference>
             </plugin>

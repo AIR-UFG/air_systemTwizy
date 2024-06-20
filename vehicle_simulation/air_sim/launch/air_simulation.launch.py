@@ -1,7 +1,7 @@
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, SetEnvironmentVariable
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution, LaunchConfiguration, Command, PythonExpression
 from launch.conditions import IfCondition
@@ -19,7 +19,8 @@ def generate_launch_description():
 
     share_dir = get_package_share_directory('air_description')
     rviz_dir = get_package_share_directory('air_sim')
-
+    # sd_control_lib_dir = os.path.join(get_package_share_directory('sd_control'), 'lib', 'sd_control')
+    
     world_name = LaunchConfiguration('world_name', default='default.world')
     declare_world_name_arg = DeclareLaunchArgument(
         'world_name',
@@ -44,6 +45,9 @@ def generate_launch_description():
         executable='robot_state_publisher',
         name='robot_state_publisher',
         parameters=[{'robot_description': robot_urdf}],
+        remappings=[
+            ('/joint_states', '/sd_twizy/joint_states')
+        ]
     )
 
     joint_state_publisher_node = Node(
@@ -86,7 +90,6 @@ def generate_launch_description():
         output='screen',
     )
 
-
     rviz2_node = Node(
         package='rviz2',
         executable='rviz2',
@@ -101,5 +104,9 @@ def generate_launch_description():
         gazebo_server,
         gazebo_client,
         urdf_spawn_node,
-        rviz2_node
+        rviz2_node,
+        # SetEnvironmentVariable(
+        #     name='GAZEBO_PLUGIN_PATH',
+        #     value=sd_control_lib_dir
+        # )
     ])

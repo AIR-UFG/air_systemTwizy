@@ -26,6 +26,7 @@ RUN apt update && apt install -y \
     ros-humble-joint-state-publisher \
     ros-humble-velodyne* \
     ros-humble-ackermann* \
+    ros-humble-can-msgs \
     && rm -rf /var/lib/apt/lists/*
 
 USER $USERNAME
