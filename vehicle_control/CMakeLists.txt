@@ -54,6 +54,8 @@ install(TARGETS
 install(
   PROGRAMS
   scripts/teleop_keyboard.py
+  scripts/sd_msgs_to_ackermann.py
+  scripts/sd_teleop_keyboard_control.py
   DESTINATION lib/${PROJECT_NAME})
 
 

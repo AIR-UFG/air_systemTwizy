@@ -93,6 +93,12 @@ def generate_launch_description():
         arguments=['-d', rviz_file],
         condition=IfCondition(PythonExpression(["'", LaunchConfiguration('rviz'), "'=='true'"]))
     )
+    
+    sd_msgs_to_ackermann = Node(
+        package='vehicle_control',
+        executable='sd_msgs_to_ackermann.py',
+        name='sd_msgs_to_ackermann',
+    )
 
     return LaunchDescription([
         rviz_arg,
@@ -101,5 +107,6 @@ def generate_launch_description():
         gazebo_server,
         gazebo_client,
         urdf_spawn_node,
-        rviz2_node
+        rviz2_node,
+        sd_msgs_to_ackermann
     ])
