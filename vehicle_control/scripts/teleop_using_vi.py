@@ -9,16 +9,16 @@ class TeleopTwistKeyboard(Node):
     def __init__(self):
         super().__init__('teleop_twist_keyboard')
 
-        self.declare_parameter('velocity_increase_rate', 5.0)
+        self.declare_parameter('velocity_increase_rate', 7.5)
         self.velocity_increase_rate = self.get_parameter('velocity_increase_rate').get_parameter_value().double_value
 
-        self.declare_parameter('steering_increase_rate', 5.0)
+        self.declare_parameter('steering_increase_rate', 0.025)
         self.steering_increase_rate = self.get_parameter('steering_increase_rate').get_parameter_value().double_value
 
         self.declare_parameter('max_velocity', 1000.0)
         self.max_velocity = self.get_parameter('max_velocity').get_parameter_value().double_value
 
-        self.declare_parameter('max_steering_angle', 1000.0)
+        self.declare_parameter('max_steering_angle', 0.35)
         self.max_steering_angle = self.get_parameter('max_steering_angle').get_parameter_value().double_value
 
         self.publisher = self.create_publisher(TwistStamped, 'twist_cmd', 10)

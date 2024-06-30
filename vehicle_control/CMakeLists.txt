@@ -56,6 +56,7 @@ install(
   scripts/teleop_keyboard.py
   scripts/sd_msgs_to_ackermann.py
   scripts/sd_teleop_keyboard_control.py
+  scripts/sd_teleop_using_vi.py
   DESTINATION lib/${PROJECT_NAME})
 
 
